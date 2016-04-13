@@ -1,6 +1,8 @@
 package io.zucchiniui.backend.comment.rest;
 
+import io.dropwizard.auth.Auth;
 import io.dropwizard.jersey.PATCH;
+import io.zucchiniui.backend.auth.domain.User;
 import io.zucchiniui.backend.comment.domain.Comment;
 import io.zucchiniui.backend.comment.domain.CommentReference;
 import io.zucchiniui.backend.comment.domain.CommentRepository;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.security.PermitAll;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -88,7 +91,11 @@ public class CommentResource {
 
     @PATCH
     @Path("{commentId}")
-    public void updateComment(@PathParam("commentId") final String commentId, @Valid @NotNull final UpdateCommentRequest request) {
+    @PermitAll
+    public void updateComment(
+        @PathParam("commentId") final String commentId,
+        @Valid @NotNull final UpdateCommentRequest request
+    ) {
         final Comment comment = loadCommentById(commentId);
         comment.setContent(request.getContent());
         commentRepository.save(comment);
@@ -96,6 +103,7 @@ public class CommentResource {
 
     @DELETE
     @Path("{commentId}")
+    @PermitAll
     public void delete(@PathParam("commentId") final String commentId) {
         final Comment comment = loadCommentById(commentId);
         commentRepository.delete(comment);
@@ -103,14 +111,17 @@ public class CommentResource {
 
     @POST
     @Path("create")
-    public Response create(@Valid @NotNull final CreateCommentRequest request) {
+    public Response create(
+        @Auth final User user,
+        @Valid @NotNull final CreateCommentRequest request
+    ) {
         final Set<CommentReference> references = new HashSet<>();
         references.addAll(mainReferences);
         references.addAll(extraReferences);
 
         LOGGER.info("Create comment with references {}", references);
 
-        final Comment comment = new Comment(references, request.getContent());
+        final Comment comment = new Comment(references, user.getName(), request.getContent());
         commentRepository.save(comment);
 
         final URI location = UriBuilder.fromUri(baseUri)

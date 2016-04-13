@@ -4,14 +4,20 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.common.base.Optional;
 import io.dropwizard.ConfiguredBundle;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.zucchiniui.backend.auth.domain.User;
+import io.zucchiniui.backend.auth.rest.JWTAuthFilter;
 import io.zucchiniui.backend.support.ddd.rest.EntityNotFoundExceptionMapper;
 import io.zucchiniui.backend.support.spring.AnnotationSpringConfigBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -39,14 +45,27 @@ public class BackendBundle implements ConfiguredBundle<BackendConfiguration> {
 
     @Override
     public void run(final BackendConfiguration configuration, final Environment environment) throws Exception {
-        final FilterRegistration.Dynamic crossOriginFilterRegistration = environment.servlets()
-            .addFilter("cors-filter", CrossOriginFilter.class);
-        crossOriginFilterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
-        crossOriginFilterRegistration.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,PUT,PATCH,DELETE");
+        final FilterRegistration.Dynamic corsRegistration = environment.servlets().addFilter("cors-filter", CrossOriginFilter.class);
+        corsRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
+        corsRegistration.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
+        corsRegistration.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,PATCH,POST,DELETE,HEAD");
+        corsRegistration.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
+        corsRegistration.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
 
         configuration.getMetrics().configure(environment.lifecycle(), environment.metrics());
 
         environment.jersey().register(new EntityNotFoundExceptionMapper());
+
+        environment.jersey().register(new AuthDynamicFeature(
+            new JWTAuthFilter.Builder<>()
+                .setJWTVerifier(configuration.getAuth().createJWTVerifier())
+                .setAuthenticator(credentials -> Optional.of(User.fromJWTClaims(credentials)))
+                .setAuthorizer((principal, role) -> true)
+                .buildAuthFilter()
+        ));
+        environment.jersey().register(RolesAllowedDynamicFeature.class);
+
+        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
     }
 
 }

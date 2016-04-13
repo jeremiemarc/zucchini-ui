@@ -28,7 +28,7 @@ public abstract class AbstractSpringBundle implements ConfiguredBundle<Configura
         applicationContext.refresh();
 
         applicationContext.getBeansWithAnnotation(Path.class).forEach((name, resource) -> {
-            LOGGER.info("Registring resource {}", name);
+            LOGGER.info("Registring JAX-RS resource {} annotated with @Path", name);
             environment.jersey().register(resource);
         });
     }

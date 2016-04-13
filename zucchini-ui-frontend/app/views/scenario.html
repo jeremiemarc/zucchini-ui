@@ -186,6 +186,7 @@
 
       <h4>
         Le {{ comment.date | niceDate }}
+        <span ng-if="comment.creatorUsername">par {{ comment.creatorUsername }}</span>
         <small ng-if="comment.testRun">
           (tir du <a ng-href="#/scenarii/{{ comment | commentReference:'SCENARIO_ID' }}">{{ comment.testRun.date |
           niceDate }}</a>)
