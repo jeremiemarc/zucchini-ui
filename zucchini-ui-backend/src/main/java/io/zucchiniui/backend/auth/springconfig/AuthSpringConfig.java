@@ -26,8 +26,10 @@ public class AuthSpringConfig {
     @Autowired
     private Environment dropwizardEnvironment;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Bean
+    public UserRepository userRepository() {
+        return configuration.getUserRepository().create();
+    }
 
     @Bean
     public AuthFilter jwtAuthFilter() {
@@ -46,7 +48,7 @@ public class AuthSpringConfig {
             credentials -> {
                 final String name = credentials.getName();
                 final String password = credentials.getPassword();
-                final User user = userRepository.findByNameAndPassword(name, password).orElse(null);
+                final User user = userRepository().findByNameAndPassword(name, password).orElse(null);
                 return Optional.fromNullable(user);
             },
             User::toJWTClaims
