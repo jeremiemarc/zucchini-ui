@@ -6,7 +6,6 @@ import io.dropwizard.auth.AuthFilter;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.setup.Environment;
 import io.zucchiniui.backend.BackendConfiguration;
-import io.zucchiniui.backend.BackendConfiguration;
 import io.zucchiniui.backend.auth.domain.User;
 import io.zucchiniui.backend.auth.domain.UserRepository;
 import io.zucchiniui.backend.auth.rest.AuthResource;
@@ -44,7 +43,12 @@ public class AuthSpringConfig {
         return new AuthResource<>(
             configuration.getAuth().createJWTSigner(),
             configuration.getAuth().createJWTSignerOptions(),
-            credentials -> Optional.fromNullable(userRepository.getByIdAndPassword(credentials.getName(), credentials.getPassword()).orElse(null)),
+            credentials -> {
+                final String name = credentials.getName();
+                final String password = credentials.getPassword();
+                final User user = userRepository.findByNameAndPassword(name, password).orElse(null);
+                return Optional.fromNullable(user);
+            },
             User::toJWTClaims
         );
     }

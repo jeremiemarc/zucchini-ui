@@ -15,7 +15,8 @@
       'ui.bootstrap',
       'ngFileUpload',
       'angular-loading-bar',
-      'monospaced.elastic'
+      'monospaced.elastic',
+      'angular-jwt'
     ])
     .constant('config', realConfig)
     .config(function ($compileProvider, config) {

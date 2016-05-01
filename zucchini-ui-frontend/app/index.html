@@ -42,6 +42,29 @@
       <ul class="nav navbar-nav">
         <li><a ng-href="#/">Derniers tirs de tests</a></li>
       </ul>
+
+      <div ng-controller="UserInfoCtrl as ctrl">
+
+        <ul class="nav navbar-nav navbar-right" ng-if="ctrl.user">
+          <li class="dropdown">
+            <a ng-href class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+              Identifié en tant que : {{ ctrl.user.displayName }}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href ng-click="ctrl.logout()">Se déconnecter</a></li>
+            </ul>
+          </li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right" ng-if="!ctrl.user">
+          <li>
+            <a ng-href="#/auth">S'identifier</a>
+          </li>
+        </ul>
+
+      </div>
+
     </div>
   </div>
 </div>
@@ -74,6 +97,7 @@
 <script src="bower_components/angular-loading-bar/build/loading-bar.js"></script>
 <script src="bower_components/angular-elastic/elastic.js"></script>
 <script src="bower_components/chartist/dist/chartist.min.js"></script>
+<script src="bower_components/angular-jwt/dist/angular-jwt.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -88,6 +112,7 @@
 <script src="scripts/components.js"></script>
 <script src="scripts/filters.js"></script>
 <script src="scripts/errors.js"></script>
+<script src="scripts/auth.js"></script>
 <script src="scripts/test-runs.js"></script>
 <script src="scripts/features.js"></script>
 <script src="scripts/scenarii.js"></script>

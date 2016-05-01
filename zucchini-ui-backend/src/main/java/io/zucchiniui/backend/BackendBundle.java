@@ -4,20 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.base.Optional;
 import io.dropwizard.ConfiguredBundle;
-import io.dropwizard.auth.AuthDynamicFeature;
-import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.zucchiniui.backend.auth.domain.User;
-import io.zucchiniui.backend.auth.rest.JWTAuthFilter;
 import io.zucchiniui.backend.support.ddd.rest.EntityNotFoundExceptionMapper;
 import io.zucchiniui.backend.support.spring.AnnotationSpringConfigBundle;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -55,17 +49,6 @@ public class BackendBundle implements ConfiguredBundle<BackendConfiguration> {
         configuration.getMetrics().configure(environment.lifecycle(), environment.metrics());
 
         environment.jersey().register(new EntityNotFoundExceptionMapper());
-
-        environment.jersey().register(new AuthDynamicFeature(
-            new JWTAuthFilter.Builder<>()
-                .setJWTVerifier(configuration.getAuth().createJWTVerifier())
-                .setAuthenticator(credentials -> Optional.of(User.fromJWTClaims(credentials)))
-                .setAuthorizer((principal, role) -> true)
-                .buildAuthFilter()
-        ));
-        environment.jersey().register(RolesAllowedDynamicFeature.class);
-
-        environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
     }
 
 }
