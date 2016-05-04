@@ -1,9 +1,9 @@
-package io.zucchiniui.backend.auth.config;
+package io.zucchiniui.backend.auth.domainimpl.staticusers;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.google.common.collect.ImmutableList;
+import io.zucchiniui.backend.auth.config.UserRepositoryFactory;
 import io.zucchiniui.backend.auth.domain.UserRepository;
-import io.zucchiniui.backend.auth.domainimpl.StaticUserRepositoryImpl;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

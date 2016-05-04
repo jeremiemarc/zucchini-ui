@@ -46,6 +46,7 @@ allprojects {
         morphia        : '1.2.0',
         slf4j          : '1.7.13',
         spring         : '4.3.0.RELEASE',
+        springLdap     : '2.0.4.RELEASE',
         jackson        : '2.6.4',
         junit          : '4.12',
         assertj        : '3.4.1',
@@ -168,6 +169,7 @@ project("${rootProject.name}-backend") {
         compile "org.mongodb.morphia:morphia-logging-slf4j:${versions.morphia}"
         compile "org.slf4j:slf4j-api:${versions.slf4j}"
         compile "org.springframework:spring-context:${versions.spring}"
+        compile "org.springframework.ldap:spring-ldap-core:${versions.springLdap}"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${versions.jackson}"
         compile 'com.auth0:java-jwt:2.1.0'

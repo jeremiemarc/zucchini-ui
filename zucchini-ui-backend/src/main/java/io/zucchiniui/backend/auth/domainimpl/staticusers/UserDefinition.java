@@ -1,4 +1,4 @@
-package io.zucchiniui.backend.auth.config;
+package io.zucchiniui.backend.auth.domainimpl.staticusers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;

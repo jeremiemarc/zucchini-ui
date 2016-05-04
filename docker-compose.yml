@@ -1,8 +1,20 @@
 ---
 
+# Mongo database used for storing Cucumber test runs
 mongod:
   container_name: "mongod-cucumber-report"
   image: "mongo:3"
   command: mongod --journal --smallfiles
   ports:
     - "27017:27017"
+
+# LDAP server
+# ldap:
+#   container_name: "ldap-cucumber-report"
+#   image: "dinkel/openldap"
+#   ports:
+#     - "389:389"
+#   environment:
+#     SLAPD_DOMAIN: example.org
+#     SLAPD_ORGANIZATION: Example
+#     SLAPD_PASSWORD: password

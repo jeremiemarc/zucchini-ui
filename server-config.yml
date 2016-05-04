@@ -22,3 +22,15 @@ userRepository:
     - name: pgentile
       password: password
       displayName: Pierre Gentile
+
+# LDAP config for an user repository
+# userRepository:
+#   type: ldap
+#   url: ldap://192.168.99.100:389
+#   userDn: "cn=admin,dc=example,dc=org"
+#   base: "dc=example,dc=org"
+#   password: password
+#
+#   attributeMapping:
+#     name: cn
+#     displayName: dn

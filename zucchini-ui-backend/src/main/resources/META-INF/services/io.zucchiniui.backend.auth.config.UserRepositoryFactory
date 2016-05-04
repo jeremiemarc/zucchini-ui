@@ -1,1 +1,2 @@
-io.zucchiniui.backend.auth.config.StaticUserRepositoryFactory
+io.zucchiniui.backend.auth.domainimpl.staticusers.StaticUserRepositoryFactory
+io.zucchiniui.backend.auth.domainimpl.ldap.LdapUserRepositoryFactory
