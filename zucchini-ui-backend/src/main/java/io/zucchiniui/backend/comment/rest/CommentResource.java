@@ -1,9 +1,9 @@
 package io.zucchiniui.backend.comment.rest;
 
-import io.dropwizard.jersey.PATCH;
 import io.zucchiniui.backend.comment.domain.Comment;
 import io.zucchiniui.backend.comment.domain.CommentReference;
 import io.zucchiniui.backend.comment.domain.CommentRepository;
+import io.zucchiniui.backend.support.jaxrs.PATCH;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

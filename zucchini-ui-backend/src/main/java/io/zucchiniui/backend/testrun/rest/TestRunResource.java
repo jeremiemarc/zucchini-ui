@@ -2,8 +2,8 @@ package io.zucchiniui.backend.testrun.rest;
 
 
 import com.google.common.base.Strings;
-import io.dropwizard.jersey.PATCH;
 import io.zucchiniui.backend.reportconverter.domain.ReportConverterService;
+import io.zucchiniui.backend.support.jaxrs.PATCH;
 import io.zucchiniui.backend.testrun.domain.Label;
 import io.zucchiniui.backend.testrun.domain.TestRun;
 import io.zucchiniui.backend.testrun.domain.TestRunQuery;

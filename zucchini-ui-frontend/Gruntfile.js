@@ -24,7 +24,7 @@ module.exports = function (grunt) {
   // Configurable paths for the application
   var config = {
     app: 'app',
-    dist: 'build/dist/ui'
+    dist: 'build/dist/public/ui'
   };
 
   var externalConfig = require('./config.json');

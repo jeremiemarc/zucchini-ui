@@ -1,26 +1,56 @@
 package io.zucchiniui.backend;
 
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import io.zucchiniui.backend.support.exceptionhandler.ExitExceptionHandler;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.EndpointMBeanExportAutoConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-public class BackendApplication extends Application<BackendConfiguration> {
+@SpringBootApplication
+@EnableAutoConfiguration(exclude = {
+    EndpointMBeanExportAutoConfiguration.class,
+    JmxAutoConfiguration.class
+})
+public class BackendApplication {
 
-    public static void main(final String... args) throws Exception {
-        final BackendApplication application = new BackendApplication();
-        Thread.setDefaultUncaughtExceptionHandler(new ExitExceptionHandler());
-        application.run(args);
+    public static void main(String[] args) {
+        SpringApplication.run(BackendApplication.class, args);
     }
 
-    @Override
-    public void initialize(final Bootstrap<BackendConfiguration> bootstrap) {
-        bootstrap.addBundle(new BackendBundle());
+    @Bean
+    public JavaTimeModule javaTimeModule() {
+        return new JavaTimeModule();
     }
 
-    @Override
-    public void run(final BackendConfiguration configuration, final Environment environment) throws Exception {
+    @Bean
+    public Jdk8Module jdk8Module() {
+        return new Jdk8Module();
+    }
 
+    @Bean
+    public FilterRegistrationBean corsFilter() {
+        // FIXME Should be configurable with EndpointCorsProperties
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin(CorsConfiguration.ALL);
+        config.addAllowedHeader(CorsConfiguration.ALL);
+        config.addAllowedMethod(CorsConfiguration.ALL);
+
+        source.registerCorsConfiguration("/**", config);
+
+        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+        bean.setOrder(0);
+
+        return bean;
     }
 
 }

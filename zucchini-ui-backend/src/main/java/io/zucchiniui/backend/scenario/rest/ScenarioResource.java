@@ -2,7 +2,6 @@ package io.zucchiniui.backend.scenario.rest;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import io.dropwizard.jersey.PATCH;
 import io.zucchiniui.backend.comment.domain.CommentReference;
 import io.zucchiniui.backend.comment.domain.CommentReferenceType;
 import io.zucchiniui.backend.comment.rest.CommentResource;
@@ -17,6 +16,7 @@ import io.zucchiniui.backend.scenario.views.ScenarioStats;
 import io.zucchiniui.backend.scenario.views.ScenarioTagStats;
 import io.zucchiniui.backend.scenario.views.ScenarioViewAccess;
 import io.zucchiniui.backend.shared.domain.TagSelection;
+import io.zucchiniui.backend.support.jaxrs.PATCH;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;

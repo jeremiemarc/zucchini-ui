@@ -1,26 +1,32 @@
 package io.zucchiniui.capsule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class UIConfigServlet extends HttpServlet {
+@Controller
+public class UIController {
 
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final String apiRootPath;
-
-    public UIConfigServlet(final ObjectMapper objectMapper, final String apiRootPath) {
-        this.objectMapper = objectMapper;
-        this.apiRootPath = apiRootPath;
+    @GetMapping({"/", "/ui"})
+    public String rootToUi() {
+        return "redirect:/ui/";
     }
 
-    @Override
-    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    @GetMapping("/ui/")
+    public String displayFrontend() {
+        return "forward:/ui/index.html";
+    }
+
+    @GetMapping("/ui/scripts/config.js")
+    public void uiConfig(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final UIConfig uiConfig = new UIConfig();
         uiConfig.setBackendBaseUri(getBackendBaseUri(request));
 

@@ -4,6 +4,10 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        maven {
+            url "http://repo.spring.io/milestone"
+        }
+
         jcenter()
     }
 
@@ -11,9 +15,12 @@ buildscript {
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
         classpath 'us.kirchmeier:gradle-capsule-plugin:1.0.2'
         classpath 'gradle.plugin.com.google.gradle:osdetector-gradle-plugin:1.4.0'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.4.0.M3'
     }
 
 }
+
+
 
 /**
  * Replace version used by a group of dependencies.
@@ -22,8 +29,8 @@ buildscript {
  * @param group Group of the dependency
  * @param version Version to set
  */
-void replaceDependencyGroupVersion(DependencyResolveDetails details, String group, String version) {
-    if (details.requested.group == group || details.requested.group.startsWith(group + ".")) {
+void replaceDependencyGroupVersion(DependencyResolveDetails details, String group, String version, boolean children = true) {
+    if (details.requested.group == group || (children && details.requested.group.startsWith(group + "."))) {
         details.useVersion version
     }
 }
@@ -37,15 +44,21 @@ allprojects {
 
     repositories {
         mavenLocal()
+        maven {
+            url "http://repo.spring.io/milestone"
+        }
         mavenCentral()
+        jcenter()
     }
 
     ext.versions = [
-        dropwizard     : '0.9.2',
         orika          : '1.4.6',
         morphia        : '1.2.0',
+        mongoDriver    : '3.2.2',
         slf4j          : '1.7.13',
+        guava          : '19.0',
         spring         : '4.3.0.RELEASE',
+        springBoot     : '1.4.0.M3',
         jackson        : '2.6.4',
         junit          : '4.12',
         assertj        : '3.4.1',
@@ -53,7 +66,7 @@ allprojects {
         junitQuickcheck: '0.6',
         capsule        : '1.0.2',
         groovy         : '2.4.7',
-        cucumberGroovy : '1.2.4'
+        cucumberGroovy : '1.2.4',
     ]
 
     // Maven plugin
@@ -132,6 +145,7 @@ allprojects {
                 eachDependency { DependencyResolveDetails details ->
                     replaceDependencyGroupVersion(details, 'com.fasterxml.jackson', project.versions.jackson)
                     replaceDependencyGroupVersion(details, 'org.slf4j', project.versions.slf4j)
+                    replaceDependencyGroupVersion(details, 'org.springframework', project.versions.spring, false)
                 }
 
             }
@@ -161,10 +175,20 @@ project("${rootProject.name}-backend") {
 
     dependencies {
 
-        compile "io.dropwizard:dropwizard-core:${versions.dropwizard}"
+        compile "org.springframework.boot:spring-boot-starter-web:${versions.springBoot}"
+        compile("org.springframework.boot:spring-boot-starter-jersey:${versions.springBoot}") {
+            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+        }
+        compile("org.springframework.boot:spring-boot-devtools:${versions.springBoot}")
+        compile "org.springframework.boot:spring-boot-starter-jetty:${versions.springBoot}"
+        // compile "org.springframework.boot:spring-boot-starter-log4j2:${versions.springBoot}"
+        compile "org.springframework.boot:spring-boot-starter-actuator:${versions.springBoot}"
+        compile "com.google.guava:guava:${versions.guava}"
+
         compile "ma.glasnost.orika:orika-core:${versions.orika}"
         compile "org.mongodb.morphia:morphia:${versions.morphia}"
         compile "org.mongodb.morphia:morphia-logging-slf4j:${versions.morphia}"
+        compile "org.mongodb:mongo-java-driver:${versions.mongoDriver}"
         compile "org.slf4j:slf4j-api:${versions.slf4j}"
         compile "org.springframework:spring-context:${versions.spring}"
         compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
@@ -303,7 +327,6 @@ project("${rootProject.name}-capsule") {
 
         compile project(":${rootProject.name}-backend")
         compile project(":${rootProject.name}-frontend")
-        compile "io.dropwizard:dropwizard-assets:${versions.dropwizard}"
 
     }
 

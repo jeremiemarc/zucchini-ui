@@ -1,40 +1,21 @@
 package io.zucchiniui.capsule;
 
-import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
-import io.dropwizard.server.AbstractServerFactory;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import io.zucchiniui.backend.BackendBundle;
-import io.zucchiniui.backend.BackendConfiguration;
-import io.zucchiniui.backend.support.exceptionhandler.ExitExceptionHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.zucchiniui.backend.BackendApplication;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.jersey.JerseyProperties;
 
-public class ZucchiniUIApplication extends Application<BackendConfiguration> {
+public class ZucchiniUIApplication extends BackendApplication {
 
-    public static void main(final String... args) throws Exception {
-        final ZucchiniUIApplication application = new ZucchiniUIApplication();
-        Thread.setDefaultUncaughtExceptionHandler(new ExitExceptionHandler());
-        application.run(args);
-    }
+    @Autowired
+    private JerseyProperties jerseyProperties;
 
-    @Override
-    public void initialize(final Bootstrap<BackendConfiguration> bootstrap) {
-        bootstrap.addBundle(new BackendBundle());
-        bootstrap.addBundle(new AssetsBundle("/ui", "/ui", "index.html", "ui"));
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Override
-    public void run(final BackendConfiguration configuration, final Environment environment) throws Exception {
-        // Register the servlet that generates the UI Javascript config file
-        final String apiRootPath = ((AbstractServerFactory) configuration.getServerFactory()).getJerseyRootPath();
-        final ServletHolder uiConfigServletHolder = new ServletHolder(new UIConfigServlet(environment.getObjectMapper(), apiRootPath));
-        environment.getApplicationContext().addServlet(uiConfigServletHolder, "/ui/scripts/config.js");
-
-        // Redirect to UI
-        final ServletHolder redirectServletHolder = new ServletHolder(new RedirectServlet("/ui/"));
-        environment.getApplicationContext().addServlet(redirectServletHolder, "/");
-        environment.getApplicationContext().addServlet(redirectServletHolder, "/ui");
+    public static void main(final String... args) {
+        SpringApplication.run(ZucchiniUIApplication.class, args);
     }
 
 }
