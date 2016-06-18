@@ -179,7 +179,10 @@ project("${rootProject.name}-backend") {
             exclude module: 'spring-boot-starter-tomcat'
         }
 
-        compile "org.springframework.boot:spring-boot-starter-jersey:${versions.springBoot}"
+        compile("org.springframework.boot:spring-boot-starter-jersey:${versions.springBoot}") {
+            exclude module: 'spring-boot-starter-tomcat'
+        }
+
         compile("org.springframework.boot:spring-boot-devtools:${versions.springBoot}")
         compile "org.springframework.boot:spring-boot-starter-jetty:${versions.springBoot}"
         // compile "org.springframework.boot:spring-boot-starter-log4j2:${versions.springBoot}"
