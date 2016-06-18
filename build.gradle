@@ -175,10 +175,11 @@ project("${rootProject.name}-backend") {
 
     dependencies {
 
-        compile "org.springframework.boot:spring-boot-starter-web:${versions.springBoot}"
-        compile("org.springframework.boot:spring-boot-starter-jersey:${versions.springBoot}") {
-            exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+        compile ("org.springframework.boot:spring-boot-starter-web:${versions.springBoot}") {
+            exclude module: 'spring-boot-starter-tomcat'
         }
+
+        compile "org.springframework.boot:spring-boot-starter-jersey:${versions.springBoot}"
         compile("org.springframework.boot:spring-boot-devtools:${versions.springBoot}")
         compile "org.springframework.boot:spring-boot-starter-jetty:${versions.springBoot}"
         // compile "org.springframework.boot:spring-boot-starter-log4j2:${versions.springBoot}"
@@ -204,7 +205,7 @@ project("${rootProject.name}-backend") {
 
         classpath = sourceSets.main.runtimeClasspath
 
-        main = 'io.zucchiniui.backend.BackendApplication'
+        main = 'io.zucchiniui.backend.ZucchiniUIApplication'
 
         args += ['serve', "${rootDir}/server-config.yml"]
     }
@@ -334,7 +335,7 @@ project("${rootProject.name}-capsule") {
 
     task fatCapsule(type: FatCapsule, description: 'Build Capsule') {
 
-        applicationClass 'io.zucchiniui.capsule.ZucchiniUIApplication'
+        applicationClass 'io.zucchiniui.backend.ZucchiniUIApplication'
 
         capsuleManifest {
             minJavaVersion = '1.8.0'
