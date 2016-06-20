@@ -96,8 +96,8 @@
   <p>
     <button type="button" class="btn btn-default btn-xs"
             uib-popover-template="'stepDisplayOptions.html'"
-            popover-title="Configurer les options d'affichage"
             popover-placement="right"
+            popover-append-to-body="true"
             popover-trigger="outsideClick">
       Options d'affichage
     </button>
@@ -317,14 +317,14 @@
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="ctrl.stepFilters.comments" ng-change="ctrl.updateStoredStepFilters()">
-          Les commentaires
+          Commentaires
         </label>
       </div>
 
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="ctrl.stepFilters.context" ng-change="ctrl.updateStoredStepFilters()">
-          Le contexte
+          Contexte
         </label>
       </div>
 
@@ -333,20 +333,19 @@
           <input type="checkbox"
                  ng-model="ctrl.stepFilters.beforeAndAfterActions"
                  ng-change="ctrl.updateStoredStepFilters()">
-          Les actions avant / après
+          Actions avant / après
         </label>
       </div>
 
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="ctrl.stepFilters.errorDetails" ng-change="ctrl.updateStoredStepFilters()">
-          Le détail des erreurs
+          Détail des erreurs
         </label>
       </div>
 
     </div>
 
   </script>
-
 
 </div>

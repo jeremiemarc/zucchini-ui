@@ -2,9 +2,9 @@
 
   <div ng-if="$ctrl.features.length > 0">
 
-    <div class="form" style="margin-bottom: 10px">
+    <div class="form-inline" style="margin-bottom: 10px">
       <div class="form-group">
-        <b>Filtrer les fonctionnalités :</b>
+        <label>Filtrer les fonctionnalités :</label>
         <label class="checkbox-inline">
           <input type="checkbox" ng-model="$ctrl.filters.passed" ng-change="$ctrl.onFilterChange()">
           Succès
@@ -30,6 +30,20 @@
           Non analysées
         </label>
       </div>
+      <div class="form-group">&nbsp;</div>
+      <div class="form-group">
+
+        <button type="button" class="btn btn-default btn-xs"
+                uib-popover-template="'featureGroupSelection.html'"
+                popover-append-to-body="true"
+                popover-placement="bottom"
+                popover-trigger="outsideClick">
+          <span class="glyphicon glyphicon-ok"
+                ng-class="$ctrl.filters.selectedGroups ? 'glyphicon-check' : 'glyphicon-unchecked'" aria-hidden="true"></span>
+          Sélection de groupes
+        </button>
+
+      </div>
     </div>
 
     <table class="table table-striped table-bordered">
@@ -42,8 +56,8 @@
         <th class="col-md-1">Succès</th>
         <th class="col-md-1">Échecs</th>
         <th class="col-md-1">En attente</th>
-        <th class="col-md-1">Non joués</th>
-        <th class="col-md-1">Analysés</th>
+        <th class="col-md-1">Non jouées</th>
+        <th class="col-md-1">Analysées</th>
       </tr>
       </thead>
       <tbody>
@@ -85,3 +99,13 @@
   </div>
 
 </div>
+
+<!-- Popup for detailed information about stats -->
+<script type="text/ng-template" id="featureGroupSelection.html">
+    <tc-feature-group-selection
+      features="$ctrl.features"
+      selected-groups="$ctrl.filters.selectedGroups"
+      on-select="$ctrl.onGroupsSelected(groups)"
+      on-clear="$ctrl.onGroupsCleared()"
+    ></tc-feature-group-selection>
+</script>

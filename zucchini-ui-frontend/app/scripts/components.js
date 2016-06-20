@@ -149,15 +149,15 @@
           this.filters = scenarioStoredFilters.get();
         };
 
-        this.$onChanges = function () {
+        this.$onChanges = function (changes) {
           // Init selected scenarii to bound scenarii
-          if (this.scenarii) {
+          if (changes.scenarii && this.scenarii) {
             this.updateScenariiSelection();
           }
         };
 
         this.updateScenariiSelection = function () {
-          this.selectedScenarii = _.filter(this.scenarii, this.isScenarioDisplayable);
+          this.selectedScenarii = this.scenarii.filter(this.isScenarioDisplayable);
         };
 
         this.onFilterChange = function () {
@@ -223,15 +223,15 @@
           this.filters = featureStoredFilters.get();
         };
 
-        this.$onChanges = function () {
+        this.$onChanges = function (changes) {
           // Init selected features to bound features
-          if (this.features) {
+          if (changes.features && this.features) {
             this.updateFeatureSelection();
           }
         };
 
         this.updateFeatureSelection = function () {
-          this.selectedFeatures = _.filter(this.features, this.isFeatureDisplayable);
+          this.selectedFeatures = this.features.filter(this.isFeatureDisplayable.bind(this));
         };
 
         this.onFilterChange = function () {
@@ -239,9 +239,19 @@
           this.updateFeatureSelection();
         };
 
+        this.onGroupsSelected = function (groups) {
+          this.filters.selectedGroups = groups;
+          this.onFilterChange();
+        };
+
+        this.onGroupsCleared = function () {
+          this.filters.selectedGroups = null;
+          this.onFilterChange();
+        };
+
         this.isFeatureDisplayable = function (feature) {
-          return this.isFeatureStatusDisplayable(feature) && this.isFeatureReviewedStateDisplayable(feature);
-        }.bind(this);
+          return this.isFeatureStatusDisplayable(feature) && this.isFeatureReviewedStateDisplayable(feature) && this.isFeatureInSelectedGroup(feature);
+        };
 
         this.isFeatureStatusDisplayable = function (feature) {
           switch (feature.status) {
@@ -269,6 +279,84 @@
           return selected;
         };
 
+        this.isFeatureInSelectedGroup = function (feature) {
+          if (this.filters.selectedGroups) {
+            return this.filters.selectedGroups.indexOf(feature.group || '') !== -1;
+          }
+          return true;
+        };
+
+      }
+    })
+    .component('tcFeatureGroupSelection', {
+      templateUrl: 'views/tc-feature-group-selection.html',
+      bindings: {
+        features: '<',
+        selectedGroups: '<',
+        onSelect: '&',
+        onClear: '&'
+      },
+      controller: function () {
+
+        this.groups = [];
+        this.selection = {};
+
+        this.$onChanges = function (changes) {
+          // Init group list from features
+          if (changes.features && this.features) {
+            this.updateGroups();
+          }
+
+          // Init selection
+          if ((changes.features || changes.selectedGroups)) {
+            this.updateSelection();
+          }
+        };
+
+        this.updateGroups = function () {
+          var groups = this.features
+            .map(function (feature) {
+              return feature.group || '';
+            })
+            .sort();
+
+          this.groups = _.sortedUniq(groups);
+        };
+
+        this.updateSelection = function () {
+          var selection = {};
+
+          if (this.selectedGroups) {
+            this.groups.forEach(function (group) {
+              selection[group] = false;
+            });
+            this.selectedGroups.forEach(function (group) {
+              selection[group] = true;
+            });
+          } else if (this.groups) {
+            this.groups.forEach(function (group) {
+              selection[group] = true;
+            });
+          }
+
+          this.selection = selection;
+        };
+
+        this.isGroupSelected = function (group) {
+          return this.selection && this.selection.indexOf(group) !== -1;
+        };
+
+        this.select = function () {
+          var selectedGroups = _.toPairs(this.selection)
+            .filter(function (pair) {
+              return pair[1] === true;
+            })
+            .map(function (pair) {
+              return pair[0];
+            });
+            this.onSelect({ groups: selectedGroups });
+        };
+
       }
     })
     .factory('featureStoredFilters', function (ObjectBrowserStorage) {
@@ -279,7 +367,8 @@
           partial: true,
           notRun: true,
           reviewed: true,
-          notReviewed: true
+          notReviewed: true,
+          selectedGroups: null
         };
       });
     })
@@ -299,9 +388,9 @@
           this.updateChart();
         };
 
-        this.$onChanges = function () {
+        this.$onChanges = function (changes) {
           // Init selected features to bound features
-          if (this.chart && this.data && _.isNumber(this.total)) {
+          if ((changes.data || changes.total) && this.data && _.isNumber(this.total)) {
             this.updateChart();
           }
         };
