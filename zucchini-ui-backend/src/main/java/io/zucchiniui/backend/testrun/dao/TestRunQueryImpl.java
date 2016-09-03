@@ -23,4 +23,10 @@ class TestRunQueryImpl extends BaseMorphiaQuery<TestRun> implements TestRunQuery
         return this;
     }
 
+    @Override
+    public TestRunQuery withId(String testRunId) {
+        configureQuery(q -> q.field("id").equal(testRunId));
+        return this;
+    }
+
 }

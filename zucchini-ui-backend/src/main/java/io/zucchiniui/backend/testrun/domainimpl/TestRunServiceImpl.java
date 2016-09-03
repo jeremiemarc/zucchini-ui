@@ -20,10 +20,16 @@ class TestRunServiceImpl implements TestRunService {
 
     @Override
     public void deleteById(final String testRunId) {
-        featureService.deleteByTestRunId(testRunId);
-
         final TestRun testRun = testRunRepository.getById(testRunId);
+        testRun.ensureUnlocked();
+
+        featureService.deleteByTestRunId(testRunId);
         testRunRepository.delete(testRun);
+    }
+
+    @Override
+    public void setLocked(TestRun testRun, boolean locked) {
+        testRun.setLocked(locked);
     }
 
 }

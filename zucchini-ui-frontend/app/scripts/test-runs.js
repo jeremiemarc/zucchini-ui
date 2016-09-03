@@ -25,6 +25,14 @@ var TestRunCoreService = function ($httpParamSerializer, TestRunResource, Upload
     return TestRunResource.update({ id: testRunId, type: type, labels: labels }).$promise;
   };
 
+  this.lock = function (testRunId) {
+    return TestRunResource.update({ id: testRunId, locked: true }).$promise;
+  };
+
+  this.unlock = function (testRunId) {
+    return TestRunResource.update({ id: testRunId, locked: false }).$promise;
+  };
+
   this.getScenarioDiff = function (leftTestRunId, rightTestRunId) {
     return TestRunResource.getScenarioDiff({ leftTestRunId: leftTestRunId, rightTestRunId: rightTestRunId }).$promise;
   };
@@ -122,6 +130,19 @@ zucchiniModule
 
     };
 
+    this.lock = function () {
+      return TestRunCoreService.lock(this.testRun.id)
+        .then(function () {
+          this.testRun.locked = true;
+        }.bind(this));
+    }.bind(this);
+
+    this.unlock = function () {
+      return TestRunCoreService.unlock(this.testRun.id)
+        .then(function () {
+          this.testRun.locked = false;
+        }.bind(this));
+    }.bind(this);
 
     // Import
 

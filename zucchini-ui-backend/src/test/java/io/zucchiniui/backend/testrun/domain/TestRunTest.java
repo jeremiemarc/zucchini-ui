@@ -1,6 +1,5 @@
 package io.zucchiniui.backend.testrun.domain;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.time.ZonedDateTime;
@@ -64,9 +63,21 @@ public class TestRunTest {
         testRun.setLabels(newLabels);
 
         // then
-        Assertions.assertThat(testRun.getLabels())
+        assertThat(testRun.getLabels())
             .doesNotContainAnyElementsOf(oldLabels)
             .containsExactlyElementsOf(newLabels);
+    }
+
+    @Test
+    public void should_lock() throws Exception {
+        // given
+        final TestRun testRun = new TestRun("TYPE");
+
+        // when
+        testRun.setLocked(true);
+
+        // then
+        assertThat(testRun.isLocked()).isTrue();
     }
 
 }

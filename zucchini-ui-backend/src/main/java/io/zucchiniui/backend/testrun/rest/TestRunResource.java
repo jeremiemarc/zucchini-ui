@@ -33,7 +33,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -115,10 +114,18 @@ public class TestRunResource {
     public void update(@PathParam("testRunId") final String testRunId, @Valid @NotNull final UpdateTestRunRequest request) {
         final TestRun testRun = testRunRepository.getById(testRunId);
 
+        // Handle locking state first, because other methods check locking state
+        if (request.getLocked() != null) {
+            testRunService.setLocked(testRun, request.getLocked());
+        }
+
         if (!Strings.isNullOrEmpty(request.getType())) {
             testRun.setType(request.getType());
         }
-        testRun.setLabels(convertRequestLabels(request.getLabels()));
+
+        if (request.getLabels() != null) {
+            testRun.setLabels(convertRequestLabels(request.getLabels()));
+        }
 
         testRunRepository.save(testRun);
     }
@@ -150,10 +157,6 @@ public class TestRunResource {
     }
 
     private static List<Label> convertRequestLabels(final List<RequestLabel> requestLabels) {
-        if (requestLabels == null) {
-            return Collections.emptyList();
-        }
-
         return requestLabels.stream()
             .map(requestLabel -> new Label(requestLabel.getName(), requestLabel.getValue(), requestLabel.getUrl()))
             .collect(Collectors.toList());

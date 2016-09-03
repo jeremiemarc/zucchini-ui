@@ -30,7 +30,11 @@ public abstract class BaseEntity<I> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEntityId());
+        final I entityId = getEntityId();
+        if (entityId == null) {
+            return 0;
+        }
+        return entityId.hashCode();
     }
 
     @Override

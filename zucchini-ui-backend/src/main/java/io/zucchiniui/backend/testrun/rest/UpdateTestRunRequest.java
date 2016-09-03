@@ -10,6 +10,8 @@ public class UpdateTestRunRequest {
     @Valid
     private List<RequestLabel> labels;
 
+    private Boolean locked;
+
     public String getType() {
         return type;
     }
@@ -24,6 +26,14 @@ public class UpdateTestRunRequest {
 
     public void setLabels(final List<RequestLabel> labels) {
         this.labels = labels;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 
 }

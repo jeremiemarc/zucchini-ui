@@ -23,7 +23,7 @@
   <div class="btn-toolbar" role="toolbar">
     <div class="btn-group" role="group">
 
-      <button ng-click="ctrl.openImportForm()" class="btn btn-default">
+      <button ng-click="ctrl.openImportForm()" class="btn btn-default" ng-disabled="ctrl.testRun.locked">
         <tc-glyphicon name="upload"></tc-glyphicon>
         Importer un résultat de tests Cucumber
       </button>
@@ -31,7 +31,7 @@
     </div>
     <div class="btn-group" role="group">
 
-      <button ng-click="ctrl.openUpdateTestRunForm()" class="btn btn-default">
+      <button ng-click="ctrl.openUpdateTestRunForm()" class="btn btn-default" ng-disabled="ctrl.testRun.locked">
         <tc-glyphicon name="pencil"></tc-glyphicon>
         Modifier
       </button>
@@ -55,7 +55,20 @@
     </div>
     <div class="btn-group" role="group">
 
-      <button ng-click="ctrl.delete()" class="btn btn-danger">
+      <button ng-click="ctrl.lock()" class="btn btn-default" ng-if="!ctrl.testRun.locked">
+        <tc-glyphicon name="pause"></tc-glyphicon>
+        Verrouiller
+      </button>
+
+      <button ng-click="ctrl.unlock()" class="btn btn-default" ng-if="ctrl.testRun.locked">
+        <tc-glyphicon name="play"></tc-glyphicon>
+        Déverrouiller
+      </button>
+
+    </div>
+    <div class="btn-group" role="group">
+
+      <button ng-click="ctrl.delete()" class="btn btn-danger" ng-disabled="ctrl.testRun.locked">
         <tc-glyphicon name="remove"></tc-glyphicon>
         Supprimer
       </button>

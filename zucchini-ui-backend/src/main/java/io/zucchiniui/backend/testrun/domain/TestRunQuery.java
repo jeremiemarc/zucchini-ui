@@ -6,4 +6,6 @@ public interface TestRunQuery {
 
     TestRunQuery withType(String type);
 
+    TestRunQuery withId(String testRunId);
+
 }
