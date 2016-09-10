@@ -81,6 +81,10 @@ public class Comment extends BaseEntity<String> {
         return Collections.unmodifiableSet(references);
     }
 
+    public void removeReference(ItemReference reference) {
+        references.remove(reference);
+    }
+
     @Override
     protected String getEntityId() {
         return id;

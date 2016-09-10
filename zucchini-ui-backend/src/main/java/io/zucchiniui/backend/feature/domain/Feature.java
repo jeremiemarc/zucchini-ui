@@ -2,7 +2,8 @@ package io.zucchiniui.backend.feature.domain;
 
 import io.zucchiniui.backend.shared.domain.BasicInfo;
 import io.zucchiniui.backend.shared.domain.Location;
-import io.zucchiniui.backend.support.ddd.BaseEntity;
+import io.zucchiniui.backend.support.ddd.events.DeletableEventSourcedEntity;
+import io.zucchiniui.backend.support.ddd.morphia.AbstractEventSourcedMorphiaEntity;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Version;
@@ -17,7 +18,7 @@ import java.util.UUID;
  * Feature.
  */
 @Entity("features")
-public class Feature extends BaseEntity<String> {
+public class Feature extends AbstractEventSourcedMorphiaEntity<String> implements DeletableEventSourcedEntity {
 
     /**
      * ID.
@@ -156,6 +157,8 @@ public class Feature extends BaseEntity<String> {
         if (!this.tags.equals(tags)) {
             this.tags = new HashSet<>(tags);
             modifiedAt = ZonedDateTime.now();
+
+            getEventStore().addEvent(new FeatureTagsUpdatedEvent(id, tags));
         }
     }
 
@@ -225,6 +228,11 @@ public class Feature extends BaseEntity<String> {
 
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public void afterEntityDelete() {
+        getEventStore().addEvent(new FeatureDeletedEvent(id));
     }
 
     @Override

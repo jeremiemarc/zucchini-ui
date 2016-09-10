@@ -1,7 +1,8 @@
 package io.zucchiniui.backend.scenario.domain;
 
 import io.zucchiniui.backend.shared.domain.BasicInfo;
-import io.zucchiniui.backend.support.ddd.BaseEntity;
+import io.zucchiniui.backend.support.ddd.events.DeletableEventSourcedEntity;
+import io.zucchiniui.backend.support.ddd.morphia.AbstractEventSourcedMorphiaEntity;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Entity("scenarii")
-public class Scenario extends BaseEntity<String> {
+public class Scenario extends AbstractEventSourcedMorphiaEntity<String> implements DeletableEventSourcedEntity {
 
     @Id
     private String id;
@@ -101,6 +102,8 @@ public class Scenario extends BaseEntity<String> {
 
         calculateStatusFromSteps();
         calculateReviewStateFromStatus();
+
+        getEventStore().addEvent(new ScenarioCreatedEvent(id, featureId));
     }
 
     public void mergeWith(final Scenario other) {
@@ -191,6 +194,8 @@ public class Scenario extends BaseEntity<String> {
 
         modifiedAt = ZonedDateTime.now();
         changes.add(new ScenarioStatusChange(modifiedAt, status, newStatus));
+
+        getEventStore().addEvent(new ScenarioStatusChangedEvent(id, featureId, status, newStatus));
 
         status = newStatus;
 
@@ -308,6 +313,11 @@ public class Scenario extends BaseEntity<String> {
 
     public ZonedDateTime getModifiedAt() {
         return modifiedAt;
+    }
+
+    @Override
+    public void afterEntityDelete() {
+        getEventStore().addEvent(new ScenarioDeletedEvent(id, featureId));
     }
 
     @Override

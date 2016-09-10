@@ -1,6 +1,7 @@
 package io.zucchiniui.backend.testrun.domain;
 
-import io.zucchiniui.backend.support.ddd.BaseEntity;
+import io.zucchiniui.backend.support.ddd.events.DeletableEventSourcedEntity;
+import io.zucchiniui.backend.support.ddd.morphia.AbstractEventSourcedMorphiaEntity;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -12,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity("testRuns")
-public class TestRun extends BaseEntity<String> {
+public class TestRun extends AbstractEventSourcedMorphiaEntity<String> implements DeletableEventSourcedEntity {
 
     @Id
     private String id;
@@ -57,6 +58,11 @@ public class TestRun extends BaseEntity<String> {
 
     public List<Label> getLabels() {
         return Collections.unmodifiableList(labels);
+    }
+
+    @Override
+    public void afterEntityDelete() {
+        getEventStore().addEvent(new TestRunDeletedEvent(id));
     }
 
     @Override

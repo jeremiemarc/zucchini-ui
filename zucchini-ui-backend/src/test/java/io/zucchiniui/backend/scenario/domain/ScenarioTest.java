@@ -220,7 +220,7 @@ public class ScenarioTest {
 
         // then
         assertThat(receivingScenario).isEqualToIgnoringGivenFields(inputScenario, "id", "createdAt", "modifiedAt",
-            "background", "steps", "beforeActions", "afterActions", "reviewed", "changes");
+            "background", "steps", "beforeActions", "afterActions", "reviewed", "changes", "eventStore");
 
         assertThat(receivingScenario.getId()).isNotEqualTo(inputScenario.getId());
         assertThat(receivingScenario.getModifiedAt()).isAfter(inputScenario.getModifiedAt());

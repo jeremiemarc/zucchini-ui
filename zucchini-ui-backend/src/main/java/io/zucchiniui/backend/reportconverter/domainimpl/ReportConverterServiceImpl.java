@@ -92,18 +92,19 @@ class ReportConverterServiceImpl implements ReportConverterService {
             });
         }
 
+        // Add tags from feature to scenarii
+        conversionResult.getScenarii().forEach(scenario -> {
+            scenario.updateWithExtraTags(conversionResult.getFeature().getTags());
+        });
+
         // If feature has been merged to an existing feature, re-link scenarii to this existing feature
         final Feature feature = featureService.tryToMergeWithExistingFeature(conversionResult.getFeature());
         if (!conversionResult.getFeature().equals(feature)) {
             conversionResult.getScenarii().forEach(s -> s.setFeatureId(feature.getId()));
         }
-
-        saveScenariiIfNeeded(conversionResult.getScenarii(), onlyNewScenarii);
-
-        featureService.calculateStatusFromScenarii(feature);
         featureRepository.save(feature);
 
-        featureService.updateScenariiWithFeatureTags(feature);
+        saveScenariiIfNeeded(conversionResult.getScenarii(), onlyNewScenarii);
     }
 
     private void saveScenariiIfNeeded(final List<Scenario> allScenarii, final boolean onlyNewScenarii) {

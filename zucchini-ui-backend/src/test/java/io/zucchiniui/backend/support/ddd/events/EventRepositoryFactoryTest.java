@@ -28,7 +28,7 @@ public class EventRepositoryFactoryTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(EventRepositoryFactoryTest.class);
 
     @Mock
-    private DomainEventBus domainEventBus;
+    private DomainEventDispatcher domainEventDispatcher;
 
     @InjectMocks
     private EventRepositoryFactory eventRepositoryFactory;
@@ -46,14 +46,14 @@ public class EventRepositoryFactoryTest {
     @Test
     public void should_submit_events_to_event_bus_on_save_entity() throws Exception {
         // given
-        final SampleEntity entity = new SampleEntity();
+        final SampleDeletableEventSourcedEntity entity = new SampleDeletableEventSourcedEntity();
 
         // when
         entity.doSomething();
         enhancedRepository.save(entity);
 
         // then
-        then(domainEventBus).should().submit(domainEventsCaptor.capture());
+        then(domainEventDispatcher).should().dispatch(domainEventsCaptor.capture());
 
         assertThat(domainEventsCaptor.getValue())
             .isNotEmpty()
@@ -63,13 +63,13 @@ public class EventRepositoryFactoryTest {
     @Test
     public void should_submit_events_to_event_bus_on_delete_entity() throws Exception {
         // given
-        final SampleEntity entity = new SampleEntity();
+        final SampleDeletableEventSourcedEntity entity = new SampleDeletableEventSourcedEntity();
 
         // when
         enhancedRepository.delete(entity);
 
         // then
-        then(domainEventBus).should().submit(domainEventsCaptor.capture());
+        then(domainEventDispatcher).should().dispatch(domainEventsCaptor.capture());
 
         assertThat(domainEventsCaptor.getValue())
             .isNotEmpty()
@@ -79,8 +79,8 @@ public class EventRepositoryFactoryTest {
     @Test
     public void should_submit_events_to_event_bus_on_calling_repository_implem_method() throws Exception {
         // given
-        final SampleEntity entity1 = new SampleEntity();
-        final SampleEntity entity2 = new SampleEntity();
+        final SampleDeletableEventSourcedEntity entity1 = new SampleDeletableEventSourcedEntity();
+        final SampleDeletableEventSourcedEntity entity2 = new SampleDeletableEventSourcedEntity();
 
         // when
         entity1.doSomething();
@@ -88,17 +88,17 @@ public class EventRepositoryFactoryTest {
         enhancedRepository.saveTwoEntities(entity1, entity2);
 
         // then
-        then(domainEventBus).should(times(2)).submit(any());
+        then(domainEventDispatcher).should(times(2)).dispatch(any());
     }
 
 
-    public static class SampleEntity extends BaseEntity<String> implements EntityWithEvents, EntityWithDeletionEvents {
+    public static class SampleDeletableEventSourcedEntity extends BaseEntity<String> implements EventSourcedEntity, DeletableEventSourcedEntity {
 
         private final DomainEventStore domainEventStore = new DomainEventStore();
 
         private final String id;
 
-        public SampleEntity() {
+        public SampleDeletableEventSourcedEntity() {
             id = UUID.randomUUID().toString();
         }
 
@@ -108,12 +108,12 @@ public class EventRepositoryFactoryTest {
         }
 
         @Override
-        public List<DomainEvent> flush() {
+        public List<DomainEvent> flushDomainEvents() {
             return domainEventStore.flush();
         }
 
         @Override
-        public void onDelete() {
+        public void afterEntityDelete() {
             domainEventStore.addEvent(new SomethingDoneEvent(id, "Deleted"));
         }
 
@@ -124,9 +124,9 @@ public class EventRepositoryFactoryTest {
 
     }
 
-    public interface SampleRepository extends Repository<SampleEntity, String> {
+    public interface SampleRepository extends Repository<SampleDeletableEventSourcedEntity, String> {
 
-        void saveTwoEntities(SampleEntity sample1, SampleEntity sample2);
+        void saveTwoEntities(SampleDeletableEventSourcedEntity sample1, SampleDeletableEventSourcedEntity sample2);
 
     }
 
@@ -144,22 +144,22 @@ public class EventRepositoryFactoryTest {
 
         }
         @Override
-        public SampleEntity getById(String id) {
+        public SampleDeletableEventSourcedEntity getById(String id) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void save(SampleEntity entity) {
+        public void save(SampleDeletableEventSourcedEntity entity) {
             LOGGER.info("IMPL - Saving one entity {}", entity);
         }
 
         @Override
-        public void delete(SampleEntity entity) {
+        public void delete(SampleDeletableEventSourcedEntity entity) {
 
         }
 
         @Override
-        public void saveTwoEntities(SampleEntity sample1, SampleEntity sample2) {
+        public void saveTwoEntities(SampleDeletableEventSourcedEntity sample1, SampleDeletableEventSourcedEntity sample2) {
             LOGGER.debug("IMPL - Saving entities {} and {}", sample1, sample2);
             Stream.of(sample1, sample2).forEach(sample -> {
                 save(sample);
@@ -168,10 +168,10 @@ public class EventRepositoryFactoryTest {
 
     }
 
-    public static abstract class SampleDomainEvent extends AbstractDomainEvent<SampleEntity, String> {
+    public static abstract class SampleDomainEvent extends AbstractDomainEvent<SampleDeletableEventSourcedEntity, String> {
 
         public SampleDomainEvent(String entityId) {
-            super(SampleEntity.class, entityId);
+            super(SampleDeletableEventSourcedEntity.class, entityId);
         }
 
     }

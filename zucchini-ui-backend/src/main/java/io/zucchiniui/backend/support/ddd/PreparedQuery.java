@@ -39,18 +39,17 @@ public interface PreparedQuery<T> {
      *
      * @return First entity found by query, or empty
      */
-    Optional<T> tryToFindOne();
+    default Optional<T> tryToFindOne() {
+        try {
+            return Optional.of(findOne());
+        } catch (final EntityNotFoundException e) {
+            // Error is ignored
+            return Optional.empty();
+        }
+    }
 
-    /**
-     * Update selected entities.
-     *
-     * @param updater Consumer that updates selected entities
-     */
-    void update(Consumer<T> updater);
-
-    /**
-     * Delete entities with a query.
-     */
-    void delete();
+    default void forEach(Consumer<T> action) {
+        stream().forEach(action);
+    }
 
 }

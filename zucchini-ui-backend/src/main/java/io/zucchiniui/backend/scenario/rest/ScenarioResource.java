@@ -129,7 +129,8 @@ public class ScenarioResource {
     @DELETE
     @Path("{scenarioId}")
     public void delete(@PathParam("scenarioId") final String scenarioId) {
-        scenarioService.deleteById(scenarioId);
+        final Scenario scenario = scenarioRepository.getById(scenarioId);
+        scenarioRepository.delete(scenario);
     }
 
     @GET

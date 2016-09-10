@@ -1,13 +1,16 @@
 package io.zucchiniui.backend.scenario.domainimpl;
 
-import io.zucchiniui.backend.feature.domain.FeatureService;
+import io.zucchiniui.backend.scenario.dao.ScenarioDAO;
 import io.zucchiniui.backend.scenario.domain.Scenario;
 import io.zucchiniui.backend.scenario.domain.ScenarioRepository;
 import io.zucchiniui.backend.scenario.domain.ScenarioService;
 import io.zucchiniui.backend.scenario.domain.UpdateScenarioParams;
+import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @Component
 class ScenarioServiceImpl implements ScenarioService {
@@ -16,14 +19,14 @@ class ScenarioServiceImpl implements ScenarioService {
 
     private final ScenarioRepository scenarioRepository;
 
-    private final FeatureService featureService;
+    private final ScenarioDAO scenarioDAO;
 
     public ScenarioServiceImpl(
         final ScenarioRepository scenarioRepository,
-        final FeatureService featureService
+        final ScenarioDAO scenarioDAO
     ) {
         this.scenarioRepository = scenarioRepository;
-        this.featureService = featureService;
+        this.scenarioDAO = scenarioDAO;
     }
 
     @Override
@@ -32,18 +35,6 @@ class ScenarioServiceImpl implements ScenarioService {
         params.getStatus().ifPresent(scenario::setStatus);
         params.isReviewed().ifPresent(scenario::setReviewed);
         scenarioRepository.save(scenario);
-
-        if (params.getStatus().isPresent()) {
-            featureService.updateStatusFromScenarii(scenario.getFeatureId());
-        }
-    }
-
-    @Override
-    public void deleteById(final String scenarioId) {
-        final Scenario scenario = scenarioRepository.getById(scenarioId);
-        scenarioRepository.delete(scenario);
-
-        featureService.updateStatusFromScenarii(scenario.getFeatureId());
     }
 
     @Override
@@ -56,6 +47,26 @@ class ScenarioServiceImpl implements ScenarioService {
                 return existingScenario;
             })
             .orElse(newScenario);
+    }
+
+    @Override
+    public void deleteByTestRunId(String testRunId) {
+        final Query<Scenario> query = scenarioDAO.prepareTypedQuery(q -> q.withTestRunId(testRunId));
+        scenarioDAO.deleteByQuery(query);
+    }
+
+    @Override
+    public void deleteByFeatureId(String featureId) {
+        final Query<Scenario> query = scenarioDAO.prepareTypedQuery(q -> q.withFeatureId(featureId));
+        scenarioDAO.deleteByQuery(query);
+    }
+
+    @Override
+    public void updateTagsForScenariiWithFeatureId(String featureId, Set<String> tags) {
+        scenarioRepository.query(q -> q.withFeatureId(featureId)).forEach(scenario -> {
+            scenario.updateWithExtraTags(tags);
+            scenarioRepository.save(scenario);
+        });
     }
 
 }

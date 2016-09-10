@@ -18,13 +18,13 @@ public class EventRepositoryFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventRepositoryFactory.class);
 
-    private final DomainEventBus domainEventBus;
+    private final DomainEventDispatcher domainEventDispatcher;
 
-    public EventRepositoryFactory(DomainEventBus domainEventBus) {
-        this.domainEventBus = domainEventBus;
+    public EventRepositoryFactory(DomainEventDispatcher domainEventDispatcher) {
+        this.domainEventDispatcher = domainEventDispatcher;
     }
 
-    public <T extends Repository<? extends EntityWithEvents, ?>> T createRepository(Class<? extends T> repositoryImplClass, Object... repositoryArgs) {
+    public <T extends Repository<? extends EventSourcedEntity, ?>> T createRepository(Class<? extends T> repositoryImplClass, Object... repositoryArgs) {
         Enhancer enhancer = new Enhancer();
         enhancer.setInterfaces(repositoryImplClass.getInterfaces());
         enhancer.setSuperclass(repositoryImplClass);
@@ -40,12 +40,12 @@ public class EventRepositoryFactory {
                 ///// if (method.getDeclaringClass() == Repository.class) {
                 switch (method.getName()) {
                     case "save": {
-                        final EntityWithEvents entity = (EntityWithEvents) args[0];
+                        final EventSourcedEntity entity = (EventSourcedEntity) args[0];
                         return doSave(entity, call);
                     }
 
                     case "delete": {
-                        final EntityWithEvents entity = (EntityWithEvents) args[0];
+                        final EventSourcedEntity entity = (EventSourcedEntity) args[0];
                         return doDelete(entity, call);
                     }
 
@@ -65,7 +65,7 @@ public class EventRepositoryFactory {
         return repositoryImplClass.cast(enhancer.create(constructor.getParameterTypes(), repositoryArgs));
     }
 
-    private Object doSave(EntityWithEvents entity, MethodCall saveCall) throws Throwable {
+    private Object doSave(EventSourcedEntity entity, MethodCall saveCall) throws Throwable {
         LOGGER.debug("Saving a event sourced entity: {}", entity);
 
         final Object result = saveCall.call();
@@ -73,23 +73,24 @@ public class EventRepositoryFactory {
         return result;
     }
 
-    private Object doDelete(EntityWithEvents entity, MethodCall deleteCall) throws Throwable {
+    private Object doDelete(EventSourcedEntity entity, MethodCall deleteCall) throws Throwable {
         LOGGER.debug("Saving a event sourced entity: {}", entity);
 
-        if (entity instanceof EntityWithDeletionEvents) {
-            ((EntityWithDeletionEvents) entity).onDelete();
+        final Object result = deleteCall.call();
+
+        if (entity instanceof DeletableEventSourcedEntity) {
+            ((DeletableEventSourcedEntity) entity).afterEntityDelete();
         }
 
-        final Object result = deleteCall.call();
         flushEntityEventsToBus(entity);
         return result;
     }
 
-    private void flushEntityEventsToBus(EntityWithEvents entity) {
-        final List<DomainEvent> events = entity.flush();
+    private void flushEntityEventsToBus(EventSourcedEntity entity) {
+        final List<DomainEvent> events = entity.flushDomainEvents();
         if (!events.isEmpty()) {
             LOGGER.debug("Submitting {} events", events.size());
-            domainEventBus.submit(events);
+            domainEventDispatcher.dispatch(events);
         }
     }
 
