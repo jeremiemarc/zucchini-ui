@@ -18,7 +18,7 @@ public abstract class AbstractEventSourcedMorphiaEntity<I> extends BaseEntity<I>
         return eventStore.flush();
     }
 
-    protected DomainEventStore getEventStore() {
+    protected final DomainEventStore getEventStore() {
         return eventStore;
     }
 

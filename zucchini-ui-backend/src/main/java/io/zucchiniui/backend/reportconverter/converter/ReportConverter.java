@@ -42,7 +42,9 @@ public class ReportConverter {
         final Optional<String> group,
         final ReportFeature reportFeature
     ) {
-        final Feature feature = reportFeatureConverter.convert(testRunId, group, reportFeature);
+        final Feature feature = reportFeatureConverter.convert(testRunId, reportFeature);
+        group.ifPresent(feature::setGroup);
+
         final List<Scenario> scenarii = convertFeatureElementsToScenarii(feature, reportFeature.getElements());
         return new ConversionResult(feature, scenarii);
     }

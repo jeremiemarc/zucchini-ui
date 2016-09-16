@@ -110,6 +110,20 @@ public class Feature extends AbstractEventSourcedMorphiaEntity<String> implement
         this.location = location;
     }
 
+    public Feature(String featureKey, String testRunId) {
+        this(featureKey, testRunId, null, null);
+    }
+
+    public void setInfo(BasicInfo info) {
+        this.info = info;
+        modifiedAt = ZonedDateTime.now();
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+        modifiedAt = ZonedDateTime.now();
+    }
+
     /**
      * Update current feature with informations from another feature.
      *
