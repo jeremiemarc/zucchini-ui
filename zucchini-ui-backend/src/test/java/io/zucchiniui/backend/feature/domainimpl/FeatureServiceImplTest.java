@@ -2,7 +2,7 @@ package io.zucchiniui.backend.feature.domainimpl;
 
 import io.zucchiniui.backend.feature.domain.Feature;
 import io.zucchiniui.backend.feature.domain.FeatureRepository;
-import io.zucchiniui.backend.feature.domain.FeatureStatus;
+import io.zucchiniui.backend.shared.domain.CompositeStatus;
 import io.zucchiniui.backend.scenario.domain.Scenario;
 import io.zucchiniui.backend.scenario.domain.ScenarioRepository;
 import io.zucchiniui.backend.scenario.views.ScenarioStats;
@@ -45,8 +45,8 @@ public class FeatureServiceImplTest {
         final ScenarioStats stats = mock(ScenarioStats.class);
         given(scenarioViewAccess.getStats(any())).willReturn(stats);
 
-        final FeatureStatus featureStatus = FeatureStatus.FAILED;
-        given(stats.computeFeatureStatus()).willReturn(featureStatus);
+        final CompositeStatus featureStatus = CompositeStatus.FAILED;
+        given(stats.computeCompositeStatus()).willReturn(featureStatus);
 
         // when
         // FIXME Test
@@ -54,35 +54,7 @@ public class FeatureServiceImplTest {
 
         // then
         verify(scenarioViewAccess).getStats(any());
-        verify(stats).computeFeatureStatus();
-
-        verify(feature).setStatus(featureStatus);
-    }
-
-    @Test
-    public void should_update_status_from_scenarii() throws Exception {
-        // given
-        final String featureId = "featureId";
-
-        final Feature feature = mock(Feature.class);
-        given(featureRepository.getById(featureId)).willReturn(feature);
-
-        final ScenarioStats stats = mock(ScenarioStats.class);
-        given(scenarioViewAccess.getStats(any())).willReturn(stats);
-
-        final FeatureStatus featureStatus = FeatureStatus.FAILED;
-        given(stats.computeFeatureStatus()).willReturn(featureStatus);
-
-        // when
-        featureService.updateStatusFromScenarii(featureId);
-
-        // then
-        verify(featureRepository).getById(featureId);
-        verify(scenarioViewAccess).getStats(any());
-        verify(stats).computeFeatureStatus();
-        verify(featureRepository).save(feature);
-
-        verify(feature).setStatus(featureStatus);
+        verify(stats).computeCompositeStatus();
     }
 
     @Test

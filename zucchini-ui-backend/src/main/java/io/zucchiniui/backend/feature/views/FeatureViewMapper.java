@@ -15,6 +15,10 @@ class FeatureViewMapper extends AbstractConfigurableMapper {
         factory.classMap(Feature.class, FeatureListItem.class)
             .byDefault()
             .register();
+
+        factory.classMap(Feature.class, FeatureView.class)
+            .byDefault()
+            .register();
     }
 
 }

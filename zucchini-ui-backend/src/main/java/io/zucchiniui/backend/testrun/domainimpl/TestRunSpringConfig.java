@@ -18,7 +18,7 @@ public class TestRunSpringConfig {
 
     @Bean
     public TestRunRepository testRunRepository() {
-        return eventRepositoryFactory.createRepository(TestRunRepositoryImpl.class);
+        return eventRepositoryFactory.createRepository(TestRunRepositoryImpl.class, testRunDAO);
     }
 
 }

@@ -1,6 +1,6 @@
 package io.zucchiniui.backend.feature.views;
 
-import io.zucchiniui.backend.feature.domain.FeatureStatus;
+import io.zucchiniui.backend.shared.domain.CompositeStatus;
 import io.zucchiniui.backend.scenario.views.ScenarioStats;
 import io.zucchiniui.backend.testrun.domain.TestRun;
 
@@ -8,7 +8,7 @@ public class FeatureHistoryItem {
 
     private String id;
 
-    private FeatureStatus status;
+    private CompositeStatus status;
 
     private TestRun testRun;
 
@@ -22,11 +22,11 @@ public class FeatureHistoryItem {
         this.id = id;
     }
 
-    public FeatureStatus getStatus() {
+    public CompositeStatus getStatus() {
         return status;
     }
 
-    public void setStatus(final FeatureStatus status) {
+    public void setStatus(final CompositeStatus status) {
         this.status = status;
     }
 

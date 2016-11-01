@@ -62,11 +62,6 @@ public class Feature extends AbstractEventSourcedMorphiaEntity<String> implement
     private String group;
 
     /**
-     * Status.
-     */
-    private FeatureStatus status;
-
-    /**
      * Creation date.
      */
     private ZonedDateTime createdAt;
@@ -98,7 +93,6 @@ public class Feature extends AbstractEventSourcedMorphiaEntity<String> implement
      */
     public Feature(final String featureKey, final String testRunId, final BasicInfo info, final Location location) {
         id = UUID.randomUUID().toString();
-        status = FeatureStatus.NOT_RUN;
 
         final ZonedDateTime now = ZonedDateTime.now();
         createdAt = now;
@@ -146,20 +140,7 @@ public class Feature extends AbstractEventSourcedMorphiaEntity<String> implement
             group = other.group;
         }
 
-        status = other.status;
         modifiedAt = ZonedDateTime.now();
-    }
-
-    /**
-     * Change feature status.
-     *
-     * @param newStatus New status
-     */
-    public void setStatus(final FeatureStatus newStatus) {
-        if (newStatus != status) {
-            status = newStatus;
-            modifiedAt = ZonedDateTime.now();
-        }
     }
 
     /**
@@ -226,10 +207,6 @@ public class Feature extends AbstractEventSourcedMorphiaEntity<String> implement
 
     public String getGroup() {
         return group;
-    }
-
-    public FeatureStatus getStatus() {
-        return status;
     }
 
     public ZonedDateTime getCreatedAt() {

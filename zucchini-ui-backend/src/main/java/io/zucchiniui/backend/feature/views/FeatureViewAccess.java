@@ -3,6 +3,7 @@ package io.zucchiniui.backend.feature.views;
 import io.zucchiniui.backend.feature.dao.FeatureDAO;
 import io.zucchiniui.backend.feature.domain.Feature;
 import io.zucchiniui.backend.feature.domain.FeatureQuery;
+import io.zucchiniui.backend.feature.domain.FeatureRepository;
 import io.zucchiniui.backend.scenario.views.ScenarioStats;
 import io.zucchiniui.backend.scenario.views.ScenarioViewAccess;
 import io.zucchiniui.backend.shared.domain.TagSelection;
@@ -22,6 +23,8 @@ import java.util.stream.Stream;
 @Component
 public class FeatureViewAccess {
 
+    private final FeatureRepository featureRepository;
+
     private final FeatureDAO featureDAO;
 
     private final ScenarioViewAccess scenarioViewAccess;
@@ -32,11 +35,15 @@ public class FeatureViewAccess {
 
     private final BoundMapperFacade<Feature, FeatureListItem> featureToListItemMapper;
 
+    private final BoundMapperFacade<Feature, FeatureView> featureToFeatureViewMapper;
+
     public FeatureViewAccess(
+        final FeatureRepository featureRepository,
         final FeatureDAO featureDAO,
         final ScenarioViewAccess scenarioViewAccess,
         final TestRunRepository testRunRepository
     ) {
+        this.featureRepository = featureRepository;
         this.featureDAO = featureDAO;
         this.scenarioViewAccess = scenarioViewAccess;
         this.testRunRepository = testRunRepository;
@@ -44,6 +51,17 @@ public class FeatureViewAccess {
         final FeatureViewMapper mapper = new FeatureViewMapper();
         featureToHistoryItemMapper = mapper.dedicatedMapperFor(Feature.class, FeatureHistoryItem.class, false);
         featureToListItemMapper = mapper.dedicatedMapperFor(Feature.class, FeatureListItem.class, false);
+        featureToFeatureViewMapper = mapper.dedicatedMapperFor(Feature.class, FeatureView.class, false);
+    }
+
+    public FeatureView getFeatureView(String featureId) {
+        final Feature feature = featureRepository.getById(featureId);
+        final ScenarioStats stats = scenarioViewAccess.getStats(q -> q.withFeatureId(featureId));
+
+        final FeatureView featureView = featureToFeatureViewMapper.map(feature);
+        featureView.setStatus(stats.computeCompositeStatus());
+
+        return featureView;
     }
 
     public List<FeatureListItem> getFeatureListItems(
@@ -70,7 +88,7 @@ public class FeatureViewAccess {
 
                 if (withStats || tagSelection.isActive()) {
                     final ScenarioStats stats = scenarioViewAccess.getStats(q -> q.withFeatureId(feature.getId()).withSelectedTags(tagSelection));
-                    item.setStatus(stats.computeFeatureStatus());
+                    item.setStatus(stats.computeCompositeStatus());
                     item.setStats(stats);
                 }
                 return item;
@@ -95,6 +113,7 @@ public class FeatureViewAccess {
                 final FeatureHistoryItem item = featureToHistoryItemMapper.map(feature);
                 item.setTestRun(testRun);
                 item.setStats(stats);
+                item.setStatus(stats.computeCompositeStatus());
 
                 return Stream.of(item);
             })

@@ -1,6 +1,6 @@
 package io.zucchiniui.backend.feature.views;
 
-import io.zucchiniui.backend.feature.domain.FeatureStatus;
+import io.zucchiniui.backend.shared.domain.CompositeStatus;
 import io.zucchiniui.backend.scenario.views.ScenarioStats;
 import io.zucchiniui.backend.shared.domain.BasicInfo;
 
@@ -14,7 +14,7 @@ public class FeatureListItem {
 
     private String group;
 
-    private FeatureStatus status;
+    private CompositeStatus status;
 
     private ScenarioStats stats;
 
@@ -50,11 +50,11 @@ public class FeatureListItem {
         this.group = group;
     }
 
-    public FeatureStatus getStatus() {
+    public CompositeStatus getStatus() {
         return status;
     }
 
-    public void setStatus(final FeatureStatus status) {
+    public void setStatus(final CompositeStatus status) {
         this.status = status;
     }
 

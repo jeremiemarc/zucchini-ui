@@ -1,6 +1,6 @@
 package io.zucchiniui.backend.scenario.views;
 
-import io.zucchiniui.backend.feature.domain.FeatureStatus;
+import io.zucchiniui.backend.shared.domain.CompositeStatus;
 import io.zucchiniui.backend.scenario.domain.ScenarioStatus;
 
 public class ScenarioStats {
@@ -33,20 +33,20 @@ public class ScenarioStats {
         return nonReviewed;
     }
 
-    public FeatureStatus computeFeatureStatus() {
+    public CompositeStatus computeCompositeStatus() {
         if (all.getCount() == 0) {
-            return FeatureStatus.NOT_RUN;
+            return CompositeStatus.NOT_RUN;
         }
         if (all.getFailed() > 0) {
-            return FeatureStatus.FAILED;
+            return CompositeStatus.FAILED;
         }
         if (all.getPassed() == all.getCount()) {
-            return FeatureStatus.PASSED;
+            return CompositeStatus.PASSED;
         }
         if (all.getNotRun() == all.getCount()) {
-            return FeatureStatus.NOT_RUN;
+            return CompositeStatus.NOT_RUN;
         }
-        return FeatureStatus.PARTIAL;
+        return CompositeStatus.PARTIAL;
     }
 
 }

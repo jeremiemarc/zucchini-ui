@@ -2,20 +2,16 @@ package io.zucchiniui.backend;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import io.dropwizard.setup.Environment;
 import io.zucchiniui.backend.comment.domainimpl.CommentDomainEventListener;
 import io.zucchiniui.backend.feature.domainimpl.FeatureDomainEventListener;
 import io.zucchiniui.backend.scenario.domainimpl.ScenarioDomainEventListener;
-import io.zucchiniui.backend.support.ddd.events.DomainEvent;
 import io.zucchiniui.backend.support.ddd.events.EventRepositoryFactory;
+import io.zucchiniui.backend.support.ddd.events.eventdispatcher.AllDomainEventsListener;
 import io.zucchiniui.backend.support.ddd.events.eventdispatcher.GuavaDomainEventDispatcher;
 import io.zucchiniui.backend.support.morphia.MorphiaDatastoreBuilder;
 import org.mongodb.morphia.Datastore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -53,9 +49,7 @@ public class BackendSpringConfig {
 
     @Bean
     public EventBus eventBus() {
-        final EventBus eventBus = new EventBus();
-        eventBus.register(new DeadEventListener());
-        return eventBus;
+        return new EventBus("domain-event-bus");
     }
 
     @Bean
@@ -69,7 +63,9 @@ public class BackendSpringConfig {
     }
 
     @PostConstruct
-    public void initListeners() {
+    public void initDomainEventListeners() {
+        eventBus().register(new AllDomainEventsListener());
+
         beanFactory.getBeansOfType(FeatureDomainEventListener.class).values().forEach(listener -> {
             eventBus().register(listener);
         });
@@ -79,22 +75,6 @@ public class BackendSpringConfig {
         beanFactory.getBeansOfType(CommentDomainEventListener.class).values().forEach(listener -> {
             eventBus().register(listener);
         });
-    }
-
-    public static class DeadEventListener {
-
-        private static final Logger LOGGER = LoggerFactory.getLogger(DeadEventListener.class);
-
-        @Subscribe
-        public void onDomainEvent(DomainEvent event) {
-            LOGGER.info("Received event {}", event);
-        }
-
-        @Subscribe
-        public void onDeadEvent(DeadEvent event) {
-            LOGGER.error("Got dead event: {}", event);
-        }
-
     }
 
 }

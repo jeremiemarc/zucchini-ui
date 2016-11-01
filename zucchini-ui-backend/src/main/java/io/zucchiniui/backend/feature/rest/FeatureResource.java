@@ -7,6 +7,7 @@ import io.zucchiniui.backend.feature.domain.FeatureRepository;
 import io.zucchiniui.backend.feature.domain.FeatureService;
 import io.zucchiniui.backend.feature.views.FeatureHistoryItem;
 import io.zucchiniui.backend.feature.views.FeatureListItem;
+import io.zucchiniui.backend.feature.views.FeatureView;
 import io.zucchiniui.backend.feature.views.FeatureViewAccess;
 import io.zucchiniui.backend.shared.domain.TagSelection;
 import org.springframework.stereotype.Component;
@@ -65,8 +66,8 @@ public class FeatureResource {
 
     @GET
     @Path("{featureId}")
-    public Feature get(@PathParam("featureId") final String featureId) {
-        return featureRepository.getById(featureId);
+    public FeatureView get(@PathParam("featureId") final String featureId) {
+        return featureViewAccess.getFeatureView(featureId);
     }
 
     @GET

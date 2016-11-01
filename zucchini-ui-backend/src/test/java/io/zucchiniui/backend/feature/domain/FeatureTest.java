@@ -34,7 +34,6 @@ public class FeatureTest {
         assertThat(feature.getTestRunId()).isEqualTo(TEST_RUN_ID);
         assertThat(feature.getInfo()).isEqualTo(INFO);
         assertThat(feature.getLocation()).isEqualTo(LOCATION);
-        assertThat(feature.getStatus()).isEqualTo(FeatureStatus.NOT_RUN);
         assertThat(feature.getGroup()).isNull();
         assertThat(feature.getDescription()).isNull();
         assertThat(feature.getTags()).isEmpty();
@@ -43,22 +42,6 @@ public class FeatureTest {
 
         assertThat(feature.getEntityId()).isEqualTo(feature.getId());
         assertThat(feature.getVersion()).isZero();
-    }
-
-    @Test
-    public void should_set_status() throws Exception {
-        // given
-        final FeatureStatus newStatus = FeatureStatus.PASSED;
-
-        final Feature feature = new Feature(FEATURE_KEY, TEST_RUN_ID, INFO, LOCATION);
-
-        // when
-
-        feature.setStatus(newStatus);
-
-        // then
-        assertThat(feature.getStatus()).isEqualTo(newStatus);
-        assertThat(feature.getModifiedAt()).isAfterOrEqualTo(feature.getCreatedAt());
     }
 
     @Test
@@ -116,7 +99,6 @@ public class FeatureTest {
         sourceFeature.setGroup("group");
         sourceFeature.setTags(Sets.newHashSet("titi", "toto", "tutu"));
         sourceFeature.setDescription("Description");
-        sourceFeature.setStatus(FeatureStatus.PASSED);
 
         final Feature targetFeature = new Feature(
             FEATURE_KEY,

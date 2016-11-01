@@ -2,7 +2,7 @@ package io.zucchiniui.backend.scenario.views;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.zucchiniui.backend.feature.domain.FeatureStatus;
+import io.zucchiniui.backend.shared.domain.CompositeStatus;
 
 public class ScenarioTagStats {
 
@@ -24,8 +24,8 @@ public class ScenarioTagStats {
         return stats;
     }
 
-    public FeatureStatus getStatus() {
-        return stats.computeFeatureStatus();
+    public CompositeStatus getStatus() {
+        return stats.computeCompositeStatus();
     }
 
 }
