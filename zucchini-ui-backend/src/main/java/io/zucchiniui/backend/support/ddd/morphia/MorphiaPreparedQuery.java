@@ -2,7 +2,6 @@ package io.zucchiniui.backend.support.ddd.morphia;
 
 import io.zucchiniui.backend.support.ddd.EntityNotFoundException;
 import io.zucchiniui.backend.support.ddd.PreparedQuery;
-import org.mongodb.morphia.dao.DAO;
 import org.mongodb.morphia.query.Query;
 
 import java.util.List;
@@ -10,12 +9,9 @@ import java.util.stream.Stream;
 
 class MorphiaPreparedQuery<T> implements PreparedQuery<T> {
 
-    private final DAO<T, ?> dao;
-
     private final Query<T> query;
 
-    public MorphiaPreparedQuery(final DAO<T, ?> dao, final Query<T> query) {
-        this.dao = dao;
+    public MorphiaPreparedQuery(final Query<T> query) {
         this.query = query;
     }
 

@@ -66,15 +66,9 @@ public class BackendSpringConfig {
     public void initDomainEventListeners() {
         eventBus().register(new AllDomainEventsListener());
 
-        beanFactory.getBeansOfType(FeatureDomainEventListener.class).values().forEach(listener -> {
-            eventBus().register(listener);
-        });
-        beanFactory.getBeansOfType(ScenarioDomainEventListener.class).values().forEach(listener -> {
-            eventBus().register(listener);
-        });
-        beanFactory.getBeansOfType(CommentDomainEventListener.class).values().forEach(listener -> {
-            eventBus().register(listener);
-        });
+        beanFactory.getBeansOfType(FeatureDomainEventListener.class).values().forEach(listener -> eventBus().register(listener));
+        beanFactory.getBeansOfType(ScenarioDomainEventListener.class).values().forEach(listener -> eventBus().register(listener));
+        beanFactory.getBeansOfType(CommentDomainEventListener.class).values().forEach(listener -> eventBus().register(listener));
     }
 
 }

@@ -1,5 +1,6 @@
 package io.zucchiniui.backend.support.ddd.events;
 
+import com.google.common.base.Joiner;
 import com.google.common.primitives.Primitives;
 import io.zucchiniui.backend.support.ddd.Repository;
 import net.sf.cglib.proxy.Enhancer;
@@ -119,9 +120,9 @@ public class EventRepositoryFactory {
                 LOGGER.debug("Found constructor {} for args {}", foundConstructor);
                 return foundConstructor;
             case 0:
-                throw new IllegalArgumentException("No constructor matching args: " + args);
+                throw new IllegalArgumentException("No constructor matching args: " + Joiner.on(", ").join(args));
             default:
-                throw new IllegalArgumentException("Too many constructors matching args: " + args + "; constructors are " + constructors);
+                throw new IllegalArgumentException("Too many constructors matching args: " + Joiner.on(", ").join(args) + "; constructors are " + constructors);
         }
     }
 

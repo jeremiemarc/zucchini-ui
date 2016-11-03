@@ -4,7 +4,6 @@ import io.zucchiniui.backend.feature.dao.FeatureDAO;
 import io.zucchiniui.backend.feature.domain.Feature;
 import io.zucchiniui.backend.feature.domain.FeatureRepository;
 import io.zucchiniui.backend.feature.domain.FeatureService;
-import io.zucchiniui.backend.scenario.views.ScenarioViewAccess;
 import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +18,12 @@ class FeatureServiceImpl implements FeatureService {
 
     private final FeatureDAO featureDAO;
 
-    private final ScenarioViewAccess scenarioViewAccess;
-
     public FeatureServiceImpl(
         final FeatureRepository featureRepository,
-        final FeatureDAO featureDAO,
-        final ScenarioViewAccess scenarioViewAccess
+        final FeatureDAO featureDAO
     ) {
         this.featureRepository = featureRepository;
         this.featureDAO = featureDAO;
-        this.scenarioViewAccess = scenarioViewAccess;
     }
 
     @Override
