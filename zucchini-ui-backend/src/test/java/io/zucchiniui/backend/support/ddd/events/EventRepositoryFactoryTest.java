@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,7 +87,12 @@ public class EventRepositoryFactoryTest {
         enhancedRepository.saveTwoEntities(entity1, entity2);
 
         // then
-        then(domainEventDispatcher).should(times(2)).dispatch(any());
+        then(domainEventDispatcher).should(times(2)).dispatch(domainEventsCaptor.capture());
+
+        assertThat(domainEventsCaptor.getAllValues())
+            .flatExtracting(domainEvents -> domainEvents)
+            .hasSize(2)
+            .allMatch(event -> event instanceof SomethingDoneEvent);
     }
 
 
@@ -104,7 +108,6 @@ public class EventRepositoryFactoryTest {
 
         public void doSomething() {
             domainEventStore.addEvent(new SomethingDoneEvent(id, "Action 1"));
-            domainEventStore.addEvent(new SomethingDoneEvent(id, "Action 2"));
         }
 
         @Override
@@ -143,6 +146,7 @@ public class EventRepositoryFactoryTest {
         public SampleRepositoryImpl(String arg1, String arg2, String arg3) {
 
         }
+
         @Override
         public SampleDeletableEventSourcedEntity getById(String id) {
             throw new UnsupportedOperationException();
