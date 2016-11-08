@@ -3,17 +3,21 @@ package io.zucchiniui.backend.support.ddd.events;
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Primitives;
 import io.zucchiniui.backend.support.ddd.Repository;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.Argument;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
+
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class EventRepositoryFactory {
 
@@ -26,65 +30,24 @@ public class EventRepositoryFactory {
     }
 
     public <T extends Repository<? extends EventSourcedEntity, ?>> T createRepository(Class<? extends T> repositoryImplClass, Object... repositoryArgs) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setInterfaces(repositoryImplClass.getInterfaces());
-        enhancer.setSuperclass(repositoryImplClass);
+        final Interceptor interceptor = new Interceptor();
 
-        enhancer.setCallback(new MethodInterceptor() {
+        final Class<? extends T> clazz = new ByteBuddy()
+            .subclass(repositoryImplClass)
+            .method(named("save")).intercept(MethodDelegation.to(interceptor))
+            .method(named("delete")).intercept(MethodDelegation.to(interceptor))
+            .make()
+            .load(getClass().getClassLoader())
+            .getLoaded();
 
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        LOGGER.debug("Generated wrapper class {} for repository class {}", clazz, repositoryImplClass);
 
-                final MethodCall call = () -> proxy.invokeSuper(obj, args);
-
-                // TODO Detect that save() and delete() methods are from Repository base interface
-                ///// if (method.getDeclaringClass() == Repository.class) {
-                switch (method.getName()) {
-                    case "save": {
-                        final EventSourcedEntity entity = (EventSourcedEntity) args[0];
-                        return doSave(entity, call);
-                    }
-
-                    case "delete": {
-                        final EventSourcedEntity entity = (EventSourcedEntity) args[0];
-                        return doDelete(entity, call);
-                    }
-
-                    default:
-                        // Call will be done later
-                        break;
-                }
-                ///// }
-
-                return call.call();
-
-            }
-
-        });
-
-        Constructor<?> constructor = findConstructorForArgs(repositoryImplClass, repositoryArgs);
-        return repositoryImplClass.cast(enhancer.create(constructor.getParameterTypes(), repositoryArgs));
-    }
-
-    private Object doSave(EventSourcedEntity entity, MethodCall saveCall) throws Throwable {
-        LOGGER.debug("Saving a event sourced entity: {}", entity);
-
-        final Object result = saveCall.call();
-        flushEntityEventsToBus(entity);
-        return result;
-    }
-
-    private Object doDelete(EventSourcedEntity entity, MethodCall deleteCall) throws Throwable {
-        LOGGER.debug("Saving a event sourced entity: {}", entity);
-
-        final Object result = deleteCall.call();
-
-        if (entity instanceof DeletableEventSourcedEntity) {
-            ((DeletableEventSourcedEntity) entity).afterEntityDelete();
+        final Constructor<?> constructor = findConstructorForArgs(clazz, repositoryArgs);
+        try {
+            return clazz.cast(constructor.newInstance(repositoryArgs));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalArgumentException("Can't build the wrapper for class " + repositoryImplClass, e);
         }
-
-        flushEntityEventsToBus(entity);
-        return result;
     }
 
     private void flushEntityEventsToBus(EventSourcedEntity entity) {
@@ -126,10 +89,26 @@ public class EventRepositoryFactory {
         }
     }
 
-    @FunctionalInterface
-    private interface MethodCall {
+    public class Interceptor {
 
-        Object call() throws Throwable;
+        public void save(@SuperCall Callable<Void> saveCall, @Argument(0) EventSourcedEntity entity) throws Exception {
+            LOGGER.debug("Saving a event sourced entity: {}", entity);
+
+            saveCall.call();
+
+            flushEntityEventsToBus(entity);
+        }
+
+        public void delete(@SuperCall Callable<Void> deleteCall, @Argument(0) EventSourcedEntity entity) throws Exception {
+            LOGGER.debug("Saving a event sourced entity: {}", entity);
+
+            deleteCall.call();
+
+            if (entity instanceof DeletableEventSourcedEntity) {
+                ((DeletableEventSourcedEntity) entity).afterEntityDelete();
+            }
+            flushEntityEventsToBus(entity);
+        }
 
     }
 
