@@ -1,24 +1,20 @@
 package io.zucchiniui.backend.feature.domainimpl;
 
+import io.zucchiniui.backend.feature.dao.FeatureDAO;
 import io.zucchiniui.backend.feature.domain.Feature;
 import io.zucchiniui.backend.feature.domain.FeatureRepository;
-import io.zucchiniui.backend.shared.domain.CompositeStatus;
-import io.zucchiniui.backend.scenario.domain.Scenario;
-import io.zucchiniui.backend.scenario.domain.ScenarioRepository;
-import io.zucchiniui.backend.scenario.views.ScenarioStats;
-import io.zucchiniui.backend.scenario.views.ScenarioViewAccess;
-import io.zucchiniui.backend.support.ddd.PreparedQuery;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.mongodb.morphia.query.Query;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class FeatureServiceImplTest {
 
@@ -29,52 +25,25 @@ public class FeatureServiceImplTest {
     private FeatureRepository featureRepository;
 
     @Mock
-    private ScenarioRepository scenarioRepository;
-
-    @Mock
-    private ScenarioViewAccess scenarioViewAccess;
+    private FeatureDAO featureDAO;
 
     @InjectMocks
     private FeatureServiceImpl featureService;
-
-    @Test
-    public void should_calculate_status_from_scenarii() throws Exception {
-        // given
-        final Feature feature = mock(Feature.class);
-
-        final ScenarioStats stats = mock(ScenarioStats.class);
-        given(scenarioViewAccess.getStats(any())).willReturn(stats);
-
-        final CompositeStatus featureStatus = CompositeStatus.FAILED;
-        given(stats.computeCompositeStatus()).willReturn(featureStatus);
-
-        // when
-        // FIXME Test
-        // featureService.calculateStatusFromScenarii(feature);
-
-        // then
-        verify(scenarioViewAccess).getStats(any());
-        verify(stats).computeCompositeStatus();
-    }
 
     @Test
     public void should_delete_feature_by_test_run_id() throws Exception {
         // given
         final String testRunId = "testRunId";
 
-        final PreparedQuery<Feature> featureQuery = mock(PreparedQuery.class, "featureQuery");
-        given(featureRepository.query(any())).willReturn(featureQuery);
-
-        final PreparedQuery<Scenario> scenarioQuery = mock(PreparedQuery.class, "scenarioQuery");
-        given(scenarioRepository.query(any())).willReturn(scenarioQuery);
+        final Query<Feature> featureQuery = mock(Query.class, "featureQuery");
+        given(featureDAO.prepareTypedQuery(any())).willReturn(featureQuery);
 
         // when
         featureService.deleteByTestRunId(testRunId);
 
         // then
-        // FIXME Add tests
-        // verify(featureQuery).delete();
-        // verify(scenarioQuery).delete();
+        then(featureDAO).should().prepareTypedQuery(any());
+        then(featureDAO).should().deleteByQuery(featureQuery);
     }
 
     @Test
@@ -85,16 +54,12 @@ public class FeatureServiceImplTest {
         final Feature feature = mock(Feature.class);
         given(featureRepository.getById(featureId)).willReturn(feature);
 
-        final PreparedQuery<Scenario> scenarioQuery = mock(PreparedQuery.class, "scenarioQuery");
-        given(scenarioRepository.query(any())).willReturn(scenarioQuery);
-
         // when
         featureService.deleteById(featureId);
 
         // then
-        // FIXME Add tests
-        // verify(scenarioQuery).delete();
-        verify(featureRepository).delete(feature);
+        then(featureRepository).should().getById(featureId);
+        then(featureRepository).should().delete(feature);
     }
 
 }

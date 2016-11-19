@@ -50,7 +50,7 @@ public class EventRepositoryFactory {
         }
     }
 
-    private void flushEntityEventsToBus(EventSourcedEntity entity) {
+    private void flushEntityEventsToDispatcher(EventSourcedEntity entity) {
         final List<DomainEvent> events = entity.flushDomainEvents();
         if (!events.isEmpty()) {
             LOGGER.debug("Submitting {} events", events.size());
@@ -96,7 +96,7 @@ public class EventRepositoryFactory {
 
             saveCall.call();
 
-            flushEntityEventsToBus(entity);
+            flushEntityEventsToDispatcher(entity);
         }
 
         public void delete(@SuperCall Callable<Void> deleteCall, @Argument(0) EventSourcedEntity entity) throws Exception {
@@ -107,7 +107,8 @@ public class EventRepositoryFactory {
             if (entity instanceof DeletableEventSourcedEntity) {
                 ((DeletableEventSourcedEntity) entity).afterEntityDelete();
             }
-            flushEntityEventsToBus(entity);
+
+            flushEntityEventsToDispatcher(entity);
         }
 
     }

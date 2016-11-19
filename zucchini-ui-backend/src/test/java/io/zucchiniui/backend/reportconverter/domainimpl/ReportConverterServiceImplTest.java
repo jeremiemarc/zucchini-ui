@@ -101,11 +101,9 @@ public class ReportConverterServiceImplTest {
 
         inOrder.verify(reportConverter).convert(testRunId, group, reportFeature);
         inOrder.verify(featureService).tryToMergeWithExistingFeature(feature);
+        inOrder.verify(featureRepository).save(feature);
         inOrder.verify(scenarioService).tryToMergeWithExistingScenario(scenario);
         inOrder.verify(scenarioRepository).save(scenario);
-        //inOrder.verify(featureService).calculateStatusFromScenarii(feature);
-        inOrder.verify(featureRepository).save(feature);
-        //inOrder.verify(featureService).updateScenariiWithFeatureTags(feature);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -147,11 +145,9 @@ public class ReportConverterServiceImplTest {
         inOrder.verify(scenario).doIgnoringChanges(any());
         inOrder.verify(scenario).setStatus(ScenarioStatus.NOT_RUN);
         inOrder.verify(featureService).tryToMergeWithExistingFeature(feature);
+        inOrder.verify(featureRepository).save(feature);
         inOrder.verify(scenarioService).tryToMergeWithExistingScenario(scenario);
         inOrder.verify(scenarioRepository).save(scenario);
-        //inOrder.verify(featureService).calculateStatusFromScenarii(feature);
-        inOrder.verify(featureRepository).save(feature);
-        //inOrder.verify(featureService).updateScenariiWithFeatureTags(feature);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -189,11 +185,9 @@ public class ReportConverterServiceImplTest {
 
         inOrder.verify(reportConverter).convert(testRunId, group, reportFeature);
         inOrder.verify(featureService).tryToMergeWithExistingFeature(feature);
+        inOrder.verify(featureRepository).save(existingFeature);
         inOrder.verify(scenarioService).tryToMergeWithExistingScenario(scenario);
         inOrder.verify(scenarioRepository).save(scenario);
-        //inOrder.verify(featureService).calculateStatusFromScenarii(existingFeature);
-        inOrder.verify(featureRepository).save(existingFeature);
-        //inOrder.verify(featureService).updateScenariiWithFeatureTags(existingFeature);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -233,11 +227,9 @@ public class ReportConverterServiceImplTest {
 
         inOrder.verify(reportConverter).convert(testRunId, group, reportFeature);
         inOrder.verify(featureService).tryToMergeWithExistingFeature(feature);
+        inOrder.verify(featureRepository).save(existingFeature);
         inOrder.verify(scenarioService).tryToMergeWithExistingScenario(scenario);
         inOrder.verify(scenarioRepository, never()).save(existingScenario);
-        //inOrder.verify(featureService).calculateStatusFromScenarii(existingFeature);
-        inOrder.verify(featureRepository).save(existingFeature);
-        //inOrder.verify(featureService).updateScenariiWithFeatureTags(existingFeature);
         inOrder.verifyNoMoreInteractions();
     }
 

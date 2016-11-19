@@ -3,13 +3,14 @@ package io.zucchiniui.backend.support.ddd.events;
 import io.zucchiniui.backend.support.ddd.BaseEntity;
 import io.zucchiniui.backend.support.ddd.Repository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EventRepositoryFactoryTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventRepositoryFactoryTest.class);
+
+    @Rule
+    public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Mock
     private DomainEventDispatcher domainEventDispatcher;
@@ -165,9 +168,7 @@ public class EventRepositoryFactoryTest {
         @Override
         public void saveTwoEntities(SampleDeletableEventSourcedEntity sample1, SampleDeletableEventSourcedEntity sample2) {
             LOGGER.debug("IMPL - Saving entities {} and {}", sample1, sample2);
-            Stream.of(sample1, sample2).forEach(sample -> {
-                save(sample);
-            });
+            Stream.of(sample1, sample2).forEach(this::save);
         }
 
     }
