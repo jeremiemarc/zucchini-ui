@@ -13,17 +13,20 @@ const GET_FAILURES_FULFILLED = `${GET_FAILURES}_FULFILLED`;
 
 export function loadTestRunFailuresPage({ testRunId }) {
   return async dispatch => {
-    const testRunResult$ = dispatch(getTestRun({ testRunId }));
-    const failuresResult$ = dispatch(getTestRunFailures({ testRunId }));
-    const stats$ = dispatch(getTestRunStats({ testRunId }));
-
-    await testRunResult$;
-    await failuresResult$;
-    await stats$;
+    await dispatch(getTestRun({ testRunId }));
+    await dispatch(getTestRunFailures({ testRunId }));
+    await dispatch(getTestRunStats({ testRunId }));
     return null;
   };
 }
 
+export function reloadTestRunFailuresPage({ testRunId }) {
+  return async dispatch => {
+    await dispatch(getTestRunFailures({ testRunId }));
+    await dispatch(getTestRunStats({ testRunId }));
+    return null;
+  };
+}
 
 export function getTestRunFailures({ testRunId }) {
   return {

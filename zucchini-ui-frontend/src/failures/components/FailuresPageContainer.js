@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { createSelector, createStructuredSelector } from 'reselect';
 
-import { loadTestRunFailuresPage } from '../redux';
+import { reloadTestRunFailuresPage, loadTestRunFailuresPage } from '../redux';
 
 import FailuresPage from './FailuresPage';
 
@@ -36,6 +36,7 @@ const FailuresPageContainer = connect(
   selectProps,
   {
     onLoad: loadTestRunFailuresPage,
+    onReload: reloadTestRunFailuresPage
   },
 )(FailuresPage);
 
